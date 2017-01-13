@@ -12,7 +12,7 @@ class OpenGraphBuilder extends Object implements IOpenGraphObjectBuilder
 	{
 		return is_array($value) || $value instanceof SS_List;
 	}
-	
+
 	protected function isValueLinkable($value)
 	{
 		return $value instanceof IOGObject || $value instanceof SiteTree;
@@ -45,8 +45,8 @@ class OpenGraphBuilder extends Object implements IOpenGraphObjectBuilder
 		if ($this->isValueLinkable($content))
 			return $this->AppendTag($tags, $name, $content->AbsoluteLink());
 
-		// check tag type
-		if (is_scalar($content))
+		// check tag type and test if object (to allow for Title to be HTMLText)
+		if (is_scalar($content) || is_object($content))
 			return $tags .= sprintf("<meta property=\"%s\" content=\"%s\" />\n", Convert::raw2att($name),
 					Convert::raw2att($content));
 
@@ -209,7 +209,7 @@ class OpenGraphBuilder extends Object implements IOpenGraphObjectBuilder
 		$this->AppendTag($tags, 'og:determiner ', $object->getOGDeterminer());
 		$this->AppendTag($tags, 'og:site_name', $object->getOGSiteName());
 		$this->appendLocales($tags, $object->getOGLocales());
-		
+
 		// Entrypoint for extensions to object tags
 		$this->extend('updateDefaultMetaTags', $tags, $object);
 	}
@@ -219,7 +219,7 @@ class OpenGraphBuilder extends Object implements IOpenGraphObjectBuilder
 		/* @var $config IOGApplication */
 		$this->AppendTag($tags, 'fb:admins', $config->getOGAdminID());
 		$this->AppendTag($tags, 'fb:app_id', $config->getOGApplicationID());
-		
+
 		// Entrypoint for extensions to application tags
 		$this->extend('updateApplicationMetaTags', $tags, $config);
 	}
